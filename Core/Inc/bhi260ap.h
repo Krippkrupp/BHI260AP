@@ -8,9 +8,12 @@
 #ifndef INC_BHI260AP_H_
 #define INC_BHI260AP_H_
 #include "main.h"
+#include <stdlib.h>
 
 #define LOW			GPIO_PIN_RESET
 #define HIGH		GPIO_PIN_SET
+#define FALSE		0x00
+
 
 /*******************************************
  * 			User ??? definitions
@@ -53,20 +56,54 @@
 #define		BHI_DEBUG_VALUE					0x30		/*!< 	BHI260AP : 			*/
 #define		BHI_DEBUG_STATE					0x31		/*!< 	BHI260AP : 			*/
 
-
+/* Bit map, register 0x25 BOOT STATUS */
 #define 	BOOT_STATUS_FW_VERIFIED			(0x01 << 5)			/*!<	Bit position 5 register 0x25 (BOOT STATUS). Indicates whether the verification of the firmware image loaded via the host interface is done (1) or not done (0)	*/
 #define 	BOOT_STATUS_FW_VERIFY_ERR		(0x01 << 6) 		/*!<	Bit position 6 register 0x25 (BOOT STATUS). Indicates whether the verification of the firmware image loaded via the host interface was successful (0) or contained an error (1)	*/
+#define 	BOOT_STATUS_FW_IDLE				(0x01 << 7) 		/*!<	Bit position 7 register 0x25 (BOOT STATUS). Indicates whether the firmware is idle (1) or running (0)	*/
+
+
+/**********************************************************************
+ *		 				HOST INTERFACE COMMANDS
+ *			 					@HI_CMD
+ * 		Set Parameter commands available in datasheet, section 13.3
+ **********************************************************************/
+#define		HI_CMD_POSTMORTEM_DATA			0x0001				/*!<	Download post mortem data. 	Available in Bootloader. Response packet on Status Channel (Host Channel 3):	Crash Dump Status Packet		*/
+#define		HI_CMD_UPLOAD_PROG_RAM			0x0002				/*!<	Upload firmware to Program RAM.	Available in Bootloader. Response packet on Status Channel (Host Channel 3):	None		*/
+#define		HI_CMD_BOOT_PROG_RAM			0x0003				/*!<	Boot firmware from program RAM.	Available in Bootloader. Response packet on Status Channel (Host Channel 3):	None		*/
+#define		HI_CMD_ERASE_FLASH				0x0004				/*!<	Erase toexternal flash.	Available in Bootloader. Response packet on Status Channel (Host Channel 3):	Flash Erase Complete Status Packet		*/
+#define		HI_CMD_WRITE_FLASH				0x0005				/*!<	Write to external flash.	Available in Bootloader. Response packet on Status Channel (Host Channel 3):	Flash Write Complete Status Packet		*/
+#define		HI_CMD_BOOT_FLASH				0x0006				/*!<	Boot from external flash.	Available in Bootloader. Response packet on Status Channel (Host Channel 3):	None		*/
+#define		HI_CMD_SENS_INJ_MODE			0x0007				/*!<	Set sensor data injection mode (Requires dedicated firmware version). Used for debug and testing.	Available in Framework. Response packet on Status Channel (Host Channel 3):		Injected Sensor Configuration Request Status Packet	*/
+#define		HI_CMD_INJ_SENS_DATA			0x0008				/*!<	Inject sensor data.	Available in Framework. Response packet on Status Channel (Host Channel 3):		None	*/
+#define		HI_CMD_FIFO_FLUSH				0x0009				/*!<	Flush FIFO. The host can request the BHI260AP at any time to initiate a data transfer of the content in one or more FIFOs from BHI to the host. Can also be used to discard data from any FIFO.	Available in Framework. Response packet on Status Channel (Host Channel 3):			*/
+#define		HI_CMD_SOFTPASS					0x000A				/*!<	Soft pass-through can be used to read/write registers on devices attached to BHI260APs secondary master I2C or SPI busses.	Available in Framework. Response packet on Status Channel (Host Channel 3):		Soft Pass-Through Results Status Packet	*/
+#define		HI_CMD_REQ_SELFTEST				0x000B				/*!<	Request sensor self-test.	Available in Framework. Response packet on Status Channel (Host Channel 3):		Sensor Self-Test Results Status Packet	*/
+#define		HI_CMD_REQ_OFFSET_COMP			0x000C				/*!<	Request that a specific sensor runs fast offset compensation.	Available in Framework. Response packet on Status Channel (Host Channel 3):		Sensor FOC Results Status Packet	*/
+#define		HI_CMD_CONF_SENS				0x000D				/*!<	Configure sensor. Used to activate/deactivate/change parameters of a specific sensor .	Available in Framework. Response packet on Status Channel (Host Channel 3):		None	*/
+#define		HI_CMD_SENS_DYN_RANGE			0x000E				/*!<	Set dynamic range for a virtual sensor.	Available in Framework. Response packet on Status Channel (Host Channel 3):		None	*/
+#define		HI_CMD_SET_CHANGE_SENSITIVITY	0x000F				/*!<	Set change sensitivity.	Available in Framework. Response packet on Status Channel (Host Channel 3):		None	*/
+#define		HI_CMD_DEBUG_TEST				0x0010				/*!<	Debug Test.	Available in Framework. Response packet on Status Channel (Host Channel 3):		None	*/
+#define		HI_CMD_DUT_CONT					0x0011				/*!<	DUT Continue.	Available in Framework. Response packet on Status Channel (Host Channel 3):		DUT Test Status Packet	*/
+#define		HI_CMD_DUT_START_TEST			0x0012				/*!<	DUT Start Test.	Available in Framework. Response packet on Status Channel (Host Channel 3):		DUT Test Status Packet	*/
+#define		HI_CMD_CTRL_FIFO_FORMAT			0x0015				/*!<	Change format and amount of timestamps placed in wake-up and non-wake-up FIFOs.	Available in Framework. Response packet on Status Channel (Host Channel 3):		None	*/
+#define		HI_CMD_RAISE_HI_SPEED			0x0017				/*!<	Raise Host Interface Speed.	Available in Bootloader. Response packet on Status Channel (Host Channel 3): Raise Host Interface Speed Status Packet			*/
+
+/**
+ * 	FIFO EVENTS, to be used in set_fifo_event
+ */
+
 /*****************************************
  * 				FUNCTIONS
  ****************************************/
 //void BHI_SPI(uint8_t data, uint8_t addr);
 void bhi_hwrite(uint8_t addr, uint8_t *data, uint32_t data_len);			/*!<	BHI260AP Host write over SPI	*/
+void set_firmware_ram();													/*!<	BHI260AP Uploads and boots predetermined firmware (BHI260AP_APP30) to the program RAM	*/
 
 // Work in progress functions
 void wip_verify_fw();
 uint8_t tmpread(uint8_t addr);	// Almost done
-
-void tmp_upload_ram();
+void tmpreadmsg(uint8_t addr);
+void wip_set_fifo_event(uint8_t SENSOR_ID, float_t freq, uint32_t delay);
 
 /*
  * 		API
