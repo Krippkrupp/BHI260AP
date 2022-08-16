@@ -16,6 +16,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "bhi260ap.h"
+#include <stdlib.h>
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -88,45 +90,6 @@ int main(void)
 
   // Set reset high
   HAL_GPIO_WritePin(BHI_SPI_NRST_BUS, BHI_SPI_NRST_PIN, GPIO_PIN_SET);
-  uint8_t addr = 0x17 | (1<<7);
-  uint8_t read_status[2];
-//  HAL_Delay(1);
-//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-//  HAL_Delay(1);
-//  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, GPIO_PIN_RESET);
-////  HAL_SPI_Transmit(&BHI_SPI, &addr, 1, 100);
-//  HAL_SPI_Transmit(&BHI_SPI, &(uint8_t){addr}, 1, 100);
-////  &(uint8_t){ADS_CMD_SDATAC}
-////  HAL_SPI_TransmitReceive(&BHI_SPI, (uint8_t[2]){0}, read_status, 2, 100);
-//  HAL_SPI_Receive(&hspi1, read_status, 2, 100);
-//  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, GPIO_PIN_SET);
-
-//  addr = 0x03 | (1<<7);
-  addr = 0b10000011;
-  uint8_t read_smth[2];
-//  HAL_Delay(1);
-//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-//  HAL_Delay(1);
-//  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, GPIO_PIN_RESET);
-//
-////  HAL_SPI_Transmit(&BHI_SPI, &addr, 1, 100);
-//  HAL_SPI_Transmit(&BHI_SPI, &(uint8_t){addr}, 1, 100);
-////  HAL_SPI_TransmitReceive(&BHI_SPI, (uint8_t[2]){0}, read_smth, 2, 100);
-//  HAL_SPI_Receive(&hspi1, read_smth, 2, 100);
-////  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, GPIO_PIN_SET);
-//
-//  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, GPIO_PIN_SET);
-//  addr = 0x17 | (1<<7);
-//  HAL_Delay(1);
-//  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-//  HAL_Delay(1);
-//  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, GPIO_PIN_RESET);
-////  HAL_SPI_Transmit(&BHI_SPI, &addr, 1, 100);
-//  HAL_SPI_Transmit(&BHI_SPI, &(uint8_t){addr}, 1, 100);
-////  &(uint8_t){ADS_CMD_SDATAC}
-////  HAL_SPI_TransmitReceive(&BHI_SPI, (uint8_t[2]){0}, read_status, 2, 100);
-//  HAL_SPI_Receive(&hspi1, read_status, 2, 100);
-//  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, GPIO_PIN_SET);
 
   HAL_GPIO_WritePin(BHI_SPI_NRST_BUS, BHI_SPI_NRST_PIN, GPIO_PIN_RESET);
   HAL_Delay(5);
@@ -134,25 +97,15 @@ int main(void)
   HAL_Delay(5);
 
 
-  // test
-//  uint8_t *arr = malloc(10*sizeof(uint8_t));
-//  for(int i = 0; i < 10; i++)
-//  {
-//	  arr[i]=i;
-//  }
-//  uint8_t *arrptr;
-//  arrptr = &arr[0];
-//  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, LOW);
-//  HAL_SPI_Transmit(&hspi1, arrptr, 3, 100);
-//  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, HIGH);
-//  arrptr = &arrptr[3];
-//  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, LOW);
-//  HAL_SPI_Transmit(&hspi1, arrptr, 3, 100);
-//  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, HIGH);
-//  arrptr = &arrptr[3];
-//  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, LOW);
-//  HAL_SPI_Transmit(&hspi1, arrptr, 3, 100);
-//  HAL_GPIO_WritePin(BHI_SPI_CS_BUS, BHI_SPI_CS_PIN, HIGH);
+//  // Test
+//  uint32_t readfloat = 0;
+//  uint32_t convfloat = 0;
+//  float_t testfloat= 0x10101010; // Vad blir detta?
+//  testfloat = 5.2;
+//  memcpy(&readfloat, &testfloat, 4);
+//  convfloat = *((float_t*)&readfloat);
+//  readfloat = *((uint32_t *)&testfloat);
+
 
   tmpread(0x16);	//	0x96			(0x00?)
   bhi_hwrite(0x16, (uint8_t[1]){0x02}, 1);
@@ -163,35 +116,23 @@ int main(void)
   tmpread(0x25);	//	A5?				()
 
   // Host interrupt control
-
-
-  // Upload FW to RAM
-  tmp_upload_ram(); // Verkar OK
-
-  // Verify uploaded RAM
-  wip_verify_fw();
-
-  // Boot firmware from RAM
-  cmd_input(0x0003, 0, NULL);
-
-  // Todo: Add a function which checks for bit 7 on 0x25 BOOT STATUS, it should be zero
-  tmpread(0x25);
-  tmpread(0x25);
-
+  	  // NOT IMPLEMENTED
 
   // The "Initialized" Meta Events will be inserted in Wake-up and Non-wake-up FIFOs
   // and the host interrupt pin will be asserted
-  tmpreadmsg(0x01);	//	0x81
-  tmpreadmsg(0x02);	//	0x82
+//  tmpreadmsg(0x01);	//	0x81
+//  tmpreadmsg(0x02);	//	0x82
 
-  ////////////////////////////
-  // Why are these four registers still nill?
-  tmpread(0x20);	//	0xa0
-  tmpread(0x21);	//	0xa1
-  // Check firmware, 0x22-23 should NOT return 0
-  tmpread(0x22);	//	0xa2
-  tmpread(0x23);	//	0xa3
+  set_firmware_ram();
 
+//  ////////////////////////////
+//  // Why are these four registers still nill?
+//  tmpread(0x20);	//	0xa0
+//  tmpread(0x21);	//	0xa1
+//  // Check firmware, 0x22-23 should NOT return 0
+//  tmpread(0x22);	//	0xa2
+//  tmpread(0x23);	//	0xa3
+  wip_set_fifo_event(37, 1, 0);
 
 
 
@@ -199,33 +140,10 @@ int main(void)
 
   // GAME ROTATION VECTOR = 37 (non wakeup) eller 38 (wakeup)
 
-//  cmd_input(0x000D, 8, &(uint8_t){37, 0x00,0x00,0x10,0x10, 0x00,0x00,0x00});
-  cmd_input(0x000D, 8, (uint8_t[8]){37, 0x10,0x10,0x10,0x10, 0x00,0x00,0x00});
-//  cmd_input(0x000D, 8, (uint8_t[8]){38, 0x00,0x00,0x10,0x10, 0x00,0x00,0x00});
-
-//  tmpread(0x25);	//	A5?				()
-//  tmpread(0x25);	//	A5?				()
-//  tmpread(0x25);	//	A5?				()
-//  tmpread(0x25);	//	A5?				()
-//  tmpread(0x25);	//	A5?				()
-//  tmpread(0x25);	//	A5?				()
-//  tmpread(0x25);	//	A5?				()
-
-//  tmpread(0x17);	//	0x97			(0x03?)
-//  tmpread(0x2b);	//	0xab			(return either 0x70 or 0xf0)
-//  tmpread(0x1c);	//	0x9c			(return 0x89)
-////  tmpread(0x1d);	//	0x9d
-//  tmpread(0x1e);	//	0x9e			(0x14-0x1f should return 0x142E - but which order?!?!)
-//  tmpread(0x1f);	//	0x9f
-//  tmpread(0x22);	//	0x9f
-//  tmpread(0x23);	//	0x9f
-//  tmpread(0x2b);	//	0xab
+  //  cmd_input(0x000D, 8, (uint8_t[8]){37, 0x10,0x10,0x10,0x10, 0x00,0x00,0x00});	// Fungerar!
 
 
 
-//  tmpreadmsg(0x03);	//	0x97
-
-		//  cmd_input(0x0012, 0, (uint8_t[1]){0x00}  );
 
   // Boot firmware flash 				--- Ger fortfarande 0x00 på register 0x22-23, dvs ingen Fw laddad
 //  cmd_input(0x0006, 0, NULL);
@@ -244,7 +162,7 @@ int main(void)
   {
     /* USER CODE END WHILE */
 				//	  tmpread(0x01);	//	0x97
-					  tmpreadmsg(0x02);	//	0x97
+	  tmpreadmsg(0x02);	//	0x97
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
