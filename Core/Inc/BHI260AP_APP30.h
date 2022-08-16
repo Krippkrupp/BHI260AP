@@ -2,7 +2,9 @@
  * BHI260AP_APP30_FLASH.h
  *
  *  Created on: 15 aug. 2022
- *      Author: westr
+ *      Author:
+ *      Description:
+ *      Firmware APP30 for BHI260AP
  */
 
 #ifndef INC_BHI260AP_APP30_H_
