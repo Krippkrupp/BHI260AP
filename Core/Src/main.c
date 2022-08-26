@@ -96,7 +96,6 @@ int main(void)
   HAL_GPIO_WritePin(BHI_SPI_NRST_BUS, BHI_SPI_NRST_PIN, GPIO_PIN_SET);
   HAL_Delay(5);
 
-
 //  // Test
 //  uint32_t readfloat = 0;
 //  uint32_t convfloat = 0;
@@ -115,8 +114,7 @@ int main(void)
 
   tmpread(0x25);	//	A5?				()
 
-  // Host interrupt control
-  	  // NOT IMPLEMENTED
+
 
   // The "Initialized" Meta Events will be inserted in Wake-up and Non-wake-up FIFOs
   // and the host interrupt pin will be asserted
@@ -125,13 +123,20 @@ int main(void)
 
   set_firmware_ram();
 
-//  ////////////////////////////
-//  // Why are these four registers still nill?
-//  tmpread(0x20);	//	0xa0
-//  tmpread(0x21);	//	0xa1
-//  // Check firmware, 0x22-23 should NOT return 0
-//  tmpread(0x22);	//	0xa2
-//  tmpread(0x23);	//	0xa3
+  tmpread(0x20);
+  tmpread(0x21);
+  tmpread(0x22);
+  tmpread(0x23);
+
+  tmpread(0x2e);	// 0x77 = 0b01110111, = Host Download Channel Empty, now 0x7c
+
+
+  // Host interrupt control
+  // Todo: make it into a function
+  bhi_hwrite(0x07, (uint8_t[1]){0b00011101}, 1);
+
+
+//  wip_set_fifo_event(37, 1, 0);
   wip_set_fifo_event(37, 1, 0);
 
 
@@ -160,9 +165,13 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  // Temporary interrupt
+//	  if(HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_11)==GPIO_PIN_SET){
+	  tmpreadmsg(0x02);
+//	  tmpreadmsg(0x01);
+//	  }
     /* USER CODE END WHILE */
-				//	  tmpread(0x01);	//	0x97
-	  tmpreadmsg(0x02);	//	0x97
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -242,29 +251,30 @@ static void MX_SPI1_Init(void)
 
   /* USER CODE END SPI1_Init 1 */
   /* SPI1 parameter configuration*/
-  hspi1.Instance = SPI1;
-  hspi1.Init.Mode = SPI_MODE_MASTER;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-//  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 0x0;
-  hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
-  hspi1.Init.NSSPolarity = SPI_NSS_POLARITY_LOW;
-  hspi1.Init.FifoThreshold = SPI_FIFO_THRESHOLD_01DATA;
-  hspi1.Init.TxCRCInitializationPattern = SPI_CRC_INITIALIZATION_ALL_ZERO_PATTERN;
-  hspi1.Init.RxCRCInitializationPattern = SPI_CRC_INITIALIZATION_ALL_ZERO_PATTERN;
-  hspi1.Init.MasterSSIdleness = SPI_MASTER_SS_IDLENESS_00CYCLE;
-  hspi1.Init.MasterInterDataIdleness = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
-  hspi1.Init.MasterReceiverAutoSusp = SPI_MASTER_RX_AUTOSUSP_DISABLE;
-  hspi1.Init.MasterKeepIOState = SPI_MASTER_KEEP_IO_STATE_ENABLE;
-  hspi1.Init.IOSwap = SPI_IO_SWAP_DISABLE;
+	hspi1.Instance = SPI1;
+	hspi1.Init.Mode = SPI_MODE_MASTER;
+	hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+	hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+	hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+	hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+	hspi1.Init.NSS = SPI_NSS_SOFT;
+	hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+	//  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+	hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+	hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+	hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+	hspi1.Init.CRCPolynomial = 0x0;
+	hspi1.Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
+	hspi1.Init.NSSPolarity = SPI_NSS_POLARITY_LOW;
+	hspi1.Init.FifoThreshold = SPI_FIFO_THRESHOLD_01DATA;
+	hspi1.Init.TxCRCInitializationPattern = SPI_CRC_INITIALIZATION_ALL_ZERO_PATTERN;
+	hspi1.Init.RxCRCInitializationPattern = SPI_CRC_INITIALIZATION_ALL_ZERO_PATTERN;
+	hspi1.Init.MasterSSIdleness = SPI_MASTER_SS_IDLENESS_00CYCLE;
+	hspi1.Init.MasterInterDataIdleness = SPI_MASTER_INTERDATA_IDLENESS_00CYCLE;
+	hspi1.Init.MasterReceiverAutoSusp = SPI_MASTER_RX_AUTOSUSP_DISABLE;
+	//  hspi1.Init.MasterKeepIOState = SPI_MASTER_KEEP_IO_STATE_ENABLE;	//
+	hspi1.Init.MasterKeepIOState = SPI_MASTER_KEEP_IO_STATE_DISABLE;
+	hspi1.Init.IOSwap = SPI_IO_SWAP_DISABLE;
   if (HAL_SPI_Init(&hspi1) != HAL_OK)
   {
     Error_Handler();
@@ -288,8 +298,8 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(BHI_nRST_GPIO_Port, BHI_nRST_Pin, GPIO_PIN_RESET);
@@ -303,6 +313,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(BHI_nRST_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : BHI_INT_Pin */
+  GPIO_InitStruct.Pin = BHI_INT_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(BHI_INT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : BHI_CS_Pin */
   GPIO_InitStruct.Pin = BHI_CS_Pin;

@@ -14,6 +14,7 @@
 #define HIGH		GPIO_PIN_SET
 #define FALSE		0x00
 
+#define DUMMYBYTE	0x00
 
 /*******************************************
  * 			User ??? definitions
