@@ -292,7 +292,10 @@ void tmpreadmsg(uint8_t addr)
 
 	uint8_t *FIFO_data = calloc(FIFO_length, sizeof(uint8_t));
 
-	HAL_SPI_Receive(&BHI_SPI, FIFO_data, FIFO_length, 500000);
+//	HAL_SPI_Receive(&BHI_SPI, FIFO_data, FIFO_length, 500000);
+	if(FIFO_length != 0){
+		HAL_SPI_Receive(&BHI_SPI, FIFO_data, FIFO_length, 500000);
+	}
 
 //	uint8_t* command_packet = calloc( (cmd_pkt_len), sizeof(uint8_t) );
 
@@ -305,6 +308,20 @@ void tmpreadmsg(uint8_t addr)
 	free(FIFO_data);
 }
 
+void bhi_get_fifo()
+{
+	// Set CS active
+
+	//	Read length
+
+	//	Allocate memory
+
+	//	Read rest of FIFO
+
+	//	While i < length
+
+	//	Deallocate memory
+}
 
 /*!
  * 	\brief Command input for Host Channel 0, (register 0x00)
